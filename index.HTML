@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>petra</title>
+</head>
+
+
+<body>
+<div class="caixa-principal">
+  <!-- tabuleiro do jogo -->
+  <div id="tabuleiro"></div>
+
+  <!-- informações do lado -->
+  <div id="informacoes">
+    <p>Tempo: <span id="cronometro">00:00</span></p>
+    <p>Linhas: <span id="linhas">0</span></p>
+    <p>Pontos: <span id="pontos">0</span></p>
+    <div class="estatisticas">
+      <p><strong>Recorde:</strong> <span id="recorde-pontos">0</span></p>
+      <p><strong>Jogador:</strong> <span id="recorde-nome">---</span></p>
+      <img src="https://uploads.onecompiler.io/43swrdrde/443ugv38g/dark-souls-bonfire.gif" id="bonfire"> 
+    </div>
+    <p>Próxima peça:</p>
+    <div id="proxima-peca"></div>
+    <div class="botoes-controle">
+      <button class="botao botao-pequeno" onclick="pausarJogo()"> Pausar</button>
+      <button class="botao botao-pequeno" onclick="abrirConfiguracoes()"> Config</button>
+      <button class="botao botao-pequeno" onclick="abrirInstrucoes()">Ajuda</button>
+    </div>
+  </div>
+</div>
+
+<!-- janela de instruções -->
+<div id="janela-instrucoes" class="janela ativa">
+  <div class="conteudo-janela">
+    <h2> Bem-vindo ao Jepristris!</h2>
+    
+    <h3> Como Jogar:</h3>
+    <ul>
+      <li><strong> Seta Esquerda:</strong> Move a peça para esquerda</li>
+      <li><strong> Seta Direita:</strong> Move a peça para direita</li>
+      <li><strong> Seta Baixo:</strong> Acelera a queda da peça</li>
+      <li><strong> Seta Cima:</strong> Gira a peça</li>
+    </ul>
+
+    <h3> Objetivo:</h3>
+    <p>Complete linhas horizontais para marcar pontos! Cada linha completa vale 100 pontos.</p>
+
+    <h3> Controles Adicionais:</h3>
+    <ul>
+      <li><strong>Pausar:</strong> Use o botão "Pausar" para pausar o jogo</li>
+      <li><strong>Configurações:</strong> Ajuste o volume da música</li>
+    </ul>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <button class="botao" onclick="comecarJogo()"> Começar a Jogar!</button>
+    </div>
+  </div>
+</div>
+
+<!-- janela de pause -->
+<div id="janela-pause" class="janela">
+  <div class="conteudo-janela">
+    <h2> Jogo Pausado</h2>
+    <p>Pressione o botão abaixo para continuar jogando.</p>
+    
+    <div style="text-align: center; margin: 20px 0;">
+      <button class="botao" onclick="pausarJogo()"> Continuar</button>
+      <button class="botao" onclick="abrirConfiguracoes()"> Configurações</button>
+    </div>
+
+    <div class="desenvolvedores">
+      <h3> Desenvolvedores:</h3>
+      <a href="https://github.com/Pedro-Augusto-dro" target="_blank"> Pedro Augusto - GitHub</a>
+      <a href="https://github.com/Brunohss2009" target="_blank"> Bruno Henrique - GitHub</a>
+      <a href="https://github.com/Gabriel" target="_blank"> Gabriel Santos - GitHub</a>
+    </div>
+  </div>
+</div>
+
+<!-- janela de configurações -->
+<div id="janela-configuracoes" class="janela">
+  <div class="conteudo-janela">
+    <h2> Configurações</h2>
+    
+    <div class="controle-volume">
+      <span> Volume:</span>
+      <input type="range" id="controle-volume" min="0" max="100" value="50" oninput="mudarVolume(this.value)">
+      <span id="valor-volume">50%</span>
+    </div>
+
+    <div style="margin: 15px 0;">
+      <button class="botao" id="botao-mutar" onclick="ligarDesligarSom()"> Desligar Som</button>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+      <button class="botao" onclick="fecharConfiguracoes()">Salvar e Fechar</button>
+    </div>
+
+    <div class="desenvolvedores">
+      <h3> Desenvolvedores:</h3>
+      <a href="https://github.com/Pedro-Augusto-dro" target="_blank"> Pedro Augusto - GitHub</a>
+      <a href="https://github.com/Brunohss2009" target="_blank"> Bruno Henrique - GitHub</a>
+      <a href="https://github.com/Gabriel" target="_blank"> Gabriel Santos - GitHub</a>
+    </div>
+  </div>
+</div>
+
+<!-- janela de fim de jogo -->
+<div id="janela-fim" class="janela">
+  <div class="conteudo-janela">
+    <h2> Fim de Jogo!</h2>
+    <p>Pontuação: <strong id="pontos-finais">0</strong></p>
+    <p>Tempo jogado: <strong id="tempo-final">00:00</strong></p>
+    <p id="mensagem-recorde" style="color: #f1c40f; display: none;"> Novo Recorde!</p>
+    
+    <div style="margin: 20px 0;">
+      <label for="nome-jogador">Digite seu nome:</label>
+      <input type="text" id="nome-jogador" placeholder="Seu nome aqui" maxlength="20">
+    </div>
+
+    <div style="text-align: center;">
+      <button class="botao" onclick="salvarERecomecar()"> Salvar e Jogar Novamente</button>
+    </div>
+  </div>
+  </div>
+
+</body>
+
+
+
+
+
+
+
+
+<style>
+/* tira as margens de tudo */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* fundo da página */
+body {
+  background: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* caixa que junta o jogo e as informações */
+.caixa-principal {
+  display: flex;
+  gap: 20px;
+}
+
+/* tabuleiro do jogo */
+#tabuleiro {
+  width: 200px;
+  height: 400px;
+  background: #222;
+  border: 2px solid #555;
+  display: grid; 
+  grid-template-rows: repeat(20, 20px);
+  grid-template-columns: repeat(10, 20px);
+}
+
+/* cada quadradinho */
+.quadrado {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #333;
+}
+
+/* painel lateral */
+#informacoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* caixa da próxima peça */
+#proxima-peca {
+  width: 80px;
+  height: 80px;
+  background: #111;
+  border: 2px solid #555;
+  display: grid;
+  grid-template-rows: repeat(4, 20px);
+  grid-template-columns: repeat(4, 20px);
+}
+
+/* cores das peças */
+.peca1 { background: #e74c3c; }
+.peca2 { background: #3498db; }
+.peca3 { background: #2ecc71; }
+.peca4 { background: #f1c40f; }
+.peca5 { background: #9b59b6; }
+
+/* janelas pop-up */
+.janela {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+.janela.ativa {
+  display: flex;
+}
+
+.conteudo-janela {
+  background-color: #222;
+  padding: 30px;
+  border: 2px solid #555;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.conteudo-janela h2 {
+  color: #f1c40f;
+  margin-bottom: 20px;
+}
+
+.conteudo-janela h3 {
+  color: #3498db;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.conteudo-janela p, .conteudo-janela ul {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.conteudo-janela ul {
+  margin-left: 20px;
+}
+
+.conteudo-janela li {
+  margin-bottom: 5px;
+}
+
+/* botões */
+.botao {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.botao:hover {
+  background: #2980b9;
+}
+
+.botao-pequeno {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* controle de volume */
+.controle-volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.controle-volume input[type="range"] {
+  flex: 1;
+}
+
+/* área dos desenvolvedores */
+.desenvolvedores {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #555;
+}
+
+.desenvolvedores a {
+  color: #3498db;
+  text-decoration: none;
+  display: block;
+  margin: 5px 0;
+}
+
+.desenvolvedores a:hover {
+  color: #2ecc71;
+}
+
+/* campo de texto */
+input[type="text"] {
+  background: #333;
+  border: 1px solid #555;
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+/* caixa de estatísticas */
+.estatisticas {
+  margin: 10px 0;
+  padding: 10px;
+  background: #333;
+  border-radius: 5px;
+}
+
+/* botões de controle */
+.botoes-controle {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+#bonfire{
+  background-repeat: no-repeat;
+  border: none;
+  width: 65px;
+  height: 80px;
+  /*display: none;*/
+}
+
+</style>
+
+
+
+<script>
+// configurações do jogo
+const LINHAS = 20;
+const COLUNAS = 10;
+const fogueira = document.getElementById('bonfire');
+
+// variáveis do jogo
+let grade = [];
+let pontuacao = 0;
+let linhasCompletas = 0;
+let pecaAtual;
+let proximaPeca;
+let jogoPausado = false;
+let jogoComecou = false;
+let tempoInicio;
+let tempoDecorrido = 0;
+let intervaloCronometro;
+let timeoutJogo;
+
+// variáveis de áudio
+let musica = new Audio();
+let somDesligado = false;
+let volumeAtual = 0.5;
+
+// coloca a musica
+musica.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+musica.loop = true; // faz a música repetir
+musica.volume = volumeAtual;
+
+// pega o tabuleiro
+const tabuleiro = document.getElementById("tabuleiro");
+
+// cria os 200 quadradinhos (20 linhas x 10 colunas)
+for (let i = 0; i < LINHAS * COLUNAS; i++) {
+  let quadrado = document.createElement("div");
+  quadrado.classList.add("quadrado");
+  tabuleiro.appendChild(quadrado);
+}
+
+// cria a grade vazia (tudo com 0)
+grade = Array.from({ length: LINHAS }, () => Array(COLUNAS).fill(0));
+
+// as peças do jogo
+const pecas = [
+  { formato: [[1,1,1],[0,1,0],[0,1,0]], cor: "peca1" },
+  { formato: [[1,1,1],[1,0,1],[0,0,0]], cor: "peca2" },
+  { formato: [[0,0,0],[0,0,0],[0,1,0]], cor: "peca3" },
+  { formato: [[0,0,1],[1,1,1],[0,1,0]], cor: "peca4" },
+  { formato: [[0,0,0],[1,1,1],[0,0,0]], cor: "peca5" }
+];
+
+// inicia a música do jogo
+function iniciarMusica() {
+  if (!somDesligado) {
+    musica.play().catch(erro => {
+      console.log("Não foi possível tocar a música:", erro);
+    });
+  }
+}
+
+// muda o volume da música
+function mudarVolume(valor) {
+  volumeAtual = valor / 100;
+  document.getElementById("valor-volume").textContent = valor + "%";
+  musica.volume = volumeAtual;
+}
+
+// liga ou desliga o som
+function ligarDesligarSom() {
+  somDesligado = !somDesligado;
+  const botao = document.getElementById("botao-mutar");
+  if (somDesligado) {
+    botao.textContent = " Ligar Som";
+    musica.pause();
+  } else {
+    botao.textContent = " Desligar Som";
+    musica.play();
+  }
+}
+
+// inicia o cronômetro
+function iniciarCronometro() {
+  tempoInicio = Date.now() - tempoDecorrido;
+  intervaloCronometro = setInterval(() => {
+    if (!jogoPausado) {
+      tempoDecorrido = Date.now() - tempoInicio;
+      atualizarCronometro();
+    }
+  }, 1000);
+}
+
+// atualiza o cronômetro na tela
+function atualizarCronometro() {
+  const segundos = Math.floor(tempoDecorrido / 1000);
+  const minutos = Math.floor(segundos / 60);
+  const segs = segundos % 60;
+  document.getElementById("cronometro").textContent = 
+    String(minutos).padStart(2, '0') + ':' + String(segs).padStart(2, '0');
+}
+
+// carrega o recorde salvo
+function carregarRecorde() {
+  const salvo = localStorage.getItem('jepristris_recorde');
+  if (salvo) {
+    const dados = JSON.parse(salvo);
+    document.getElementById('recorde-pontos').textContent = dados.pontos;
+    document.getElementById('recorde-nome').textContent = dados.nome;
+  }
+}
+
+// salva um novo recorde
+function salvarRecorde(novosPontos, nomeJogador) {
+  const salvo = localStorage.getItem('jepristris_recorde');
+  let recordeAtual = 0;
+  
+  if (salvo) {
+    recordeAtual = JSON.parse(salvo).pontos;
+  }
+  
+  if (novosPontos > recordeAtual) {
+    localStorage.setItem('jepristris_recorde', JSON.stringify({
+      pontos: novosPontos,
+      nome: nomeJogador || 'Anônimo'
+    }));
+    carregarRecorde();
+    return true;
+  }
+  return false;
+}
+
+// escolhe uma peça aleatória
+function pecaAleatoria() {
+  let p = pecas[Math.floor(Math.random() * pecas.length)];
+  return {
+    formato: p.formato.map(linha => [...linha]),
+    cor: p.cor,
+    x: Math.floor(COLUNAS / 2) - 1,
+    y: 0
+  };
+}
+
+// mostra a próxima peça
+function mostrarProximaPeca() {
+  const caixa = document.getElementById("proxima-peca");
+  caixa.innerHTML = "";
+  
+  // cria 16 quadradinhos (4x4)
+  for (let i = 0; i < 16; i++) {
+    let q = document.createElement("div");
+    q.classList.add("quadrado");
+    caixa.appendChild(q);
+  }
+  
+  // pinta os quadradinhos da próxima peça
+  proximaPeca.formato.forEach((linha, l) => {
+    linha.forEach((valor, c) => {
+      if (valor) {
+        let indice = l * 4 + c;
+        caixa.children[indice].classList.add(proximaPeca.cor);
+      }
+    });
+  });
+}
+
+// desenha tudo na tela
+function desenhar() {
+  const quadrados = document.querySelectorAll("#tabuleiro .quadrado");
+  
+  // limpa tudo antes
+  quadrados.forEach(quadrado => quadrado.className = "quadrado");
+
+  // desenha as peças fixas no tabuleiro
+  grade.forEach((linha, l) => {
+    linha.forEach((valor, c) => {
+      if (valor) {
+        quadrados[l * COLUNAS + c].classList.add(valor);
+      }
+    });
+  });
+
+  // desenha a peça que está caindo
+  pecaAtual.formato.forEach((linha, l) => {
+    linha.forEach((valor, c) => {
+      if (valor) {
+        let x = pecaAtual.x + c;
+        let y = pecaAtual.y + l;
+        if (y >= 0) {
+          quadrados[y * COLUNAS + x].classList.add(pecaAtual.cor);
+        }
+      }
+    });
+  });
+}
+
+// verifica se bateu em algo
+function bateu(posX, posY, formato) {
+  return formato.some((linha, l) =>
+    linha.some((valor, c) =>
+      valor && (
+        posX + c < 0 ||
+        posX + c >= COLUNAS ||
+        posY + l >= LINHAS ||
+        grade[posY + l] && grade[posY + l][posX + c]
+      )
+    )
+  );
+}
+
+// fixa a peça no tabuleiro
+function fixarPeca() {
+  pecaAtual.formato.forEach((linha, l) => {
+    linha.forEach((valor, c) => {
+      if (valor) {
+        grade[pecaAtual.y + l][pecaAtual.x + c] = pecaAtual.cor;
+      }
+    });
+  });
+}
+
+// remove as linhas completas
+function removerLinhasCompletas() {
+  for (let l = LINHAS - 1; l >= 0; l--) {
+    if (grade[l].every(valor => valor)) {
+      grade.splice(l, 1);
+      grade.unshift(Array(COLUNAS).fill(0));
+      linhasCompletas++;
+      pontuacao += 100;
+    }
+  }
+  document.getElementById("linhas").innerText = linhasCompletas;
+  document.getElementById("pontos").innerText = pontuacao;
+}
+
+// faz a peça cair
+function cair() {
+  if (!bateu(pecaAtual.x, pecaAtual.y + 1, pecaAtual.formato)) {
+    pecaAtual.y++;
+  } else {
+    fixarPeca();
+    removerLinhasCompletas();
+    pecaAtual = proximaPeca;
+    proximaPeca = pecaAleatoria();
+    mostrarProximaPeca();
+    
+    if (bateu(pecaAtual.x, pecaAtual.y, pecaAtual.formato)) {
+      fimDeJogo();
+      return;
+    }
+  }
+  desenhar();
+}
+
+// quando o jogo acaba
+function fimDeJogo() {
+  jogoComecou = false;
+  clearInterval(intervaloCronometro);
+  clearTimeout(timeoutJogo);
+  
+  document.getElementById('pontos-finais').textContent = pontuacao;
+  document.getElementById('tempo-final').textContent = document.getElementById('cronometro').textContent;
+  
+  const salvo = localStorage.getItem('jepristris_recorde');
+  let ehNovoRecorde = false;
+  
+  if (salvo) {
+    ehNovoRecorde = pontuacao > JSON.parse(salvo).pontos;
+  } else {
+    ehNovoRecorde = pontuacao > 0;
+  }
+  
+  if (ehNovoRecorde) {
+    document.getElementById('mensagem-recorde').style.display = 'block';
+  } else {
+    document.getElementById('mensagem-recorde').style.display = 'none';
+  }
+  
+  document.getElementById('janela-fim').classList.add('ativa');
+} 
+
+// salva o recorde e recomeça
+function salvarERecomecar() {
+  const nomeJogador = document.getElementById('nome-jogador').value.trim();
+  salvarRecorde(pontuacao, nomeJogador);
+  document.getElementById('janela-fim').classList.remove('ativa');
+  if(nomeJogador === 'firekeeper'){
+    fogueira.style.display = 'block';
+  }
+  resetarJogo();
+}
+
+// reseta o jogo
+function resetarJogo() {
+  grade = Array.from({ length: LINHAS }, () => Array(COLUNAS).fill(0));
+  pontuacao = 0;
+  linhasCompletas = 0;
+  tempoDecorrido = 0;
+  document.getElementById("linhas").innerText = linhasCompletas;
+  document.getElementById("pontos").innerText = pontuacao;
+  document.getElementById("cronometro").textContent = "00:00";
+  pecaAtual = pecaAleatoria();
+  proximaPeca = pecaAleatoria();
+  mostrarProximaPeca();
+  desenhar();
+  iniciarCronometro();
+  jogoComecou = true;
+  loopDoJogo();
+}
+
+// controle das teclas
+document.addEventListener("keydown", tecla => {
+  if (!jogoComecou || jogoPausado) return;
+  
+  if (tecla.key === "ArrowLeft" && !bateu(pecaAtual.x - 1, pecaAtual.y, pecaAtual.formato)) {
+    pecaAtual.x--;
+  }
+  if (tecla.key === "ArrowRight" && !bateu(pecaAtual.x + 1, pecaAtual.y, pecaAtual.formato)) {
+    pecaAtual.x++;
+  }
+  if (tecla.key === "ArrowDown") {
+    cair();
+  }
+  if (tecla.key === "ArrowUp") {
+    // gira a peça
+    let girada = pecaAtual.formato[0].map((_, c) =>
+      pecaAtual.formato.map(linha => linha[c]).reverse()
+    );
+    if (!bateu(pecaAtual.x, pecaAtual.y, girada)) {
+      pecaAtual.formato = girada;
+    }
+  }
+  desenhar();
+});
+
+// loop principal do jogo
+function loopDoJogo() {
+  if (!jogoComecou || jogoPausado) return;
+  cair();
+  timeoutJogo = setTimeout(loopDoJogo, 500);
+}
+
+// começa o jogo
+function comecarJogo() {
+  document.getElementById('janela-instrucoes').classList.remove('ativa');
+  iniciarMusica();
+  carregarRecorde();
+  pecaAtual = pecaAleatoria();
+  proximaPeca = pecaAleatoria();
+  mostrarProximaPeca();
+  desenhar();
+  iniciarCronometro();
+  jogoComecou = true;
+  fogueira.style.display = 'none';
+  loopDoJogo();
+}
+
+// pausa o jogo
+function pausarJogo() {
+  jogoPausado = !jogoPausado;
+  if (jogoPausado) {
+    document.getElementById('janela-pause').classList.add('ativa');
+  } else {
+    document.getElementById('janela-pause').classList.remove('ativa');
+    tempoInicio = Date.now() - tempoDecorrido;
+    loopDoJogo();
+  }
+}
+
+// abre as configurações
+function abrirConfiguracoes() {
+  const estavaEmPause = jogoPausado;
+  if (!estavaEmPause && jogoComecou) {
+    jogoPausado = true;
+  }
+  document.getElementById('janela-configuracoes').classList.add('ativa');
+  document.getElementById('janela-pause').classList.remove('ativa');
+}
+
+// fecha as configurações
+function fecharConfiguracoes() {
+  document.getElementById('janela-configuracoes').classList.remove('ativa');
+  if (jogoComecou) {
+    document.getElementById('janela-pause').classList.add('ativa');
+  }
+}
+
+// abre as instruções
+function abrirInstrucoes() {
+  const estavaEmPause = jogoPausado;
+  if (!estavaEmPause && jogoComecou) {
+    jogoPausado = true;
+  }
+  document.getElementById('janela-instrucoes').classList.add('ativa');
+}
+
+//const texto = "firekeeper";
+//const campotx = document.getElementById('recorde-nome');
+
+//campoDeTexto.addEventListener('input', () => {
+
+// carrega o recorde ao abrir a página
+carregarRecorde();
+</script>
+</html>
